@@ -2,6 +2,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 
+const Thing = require('./models/thing');
+
 // création de l'application express
 const app = express();
 // mongoose.connect('mongodb://localhost:27017/dbconnect')
@@ -45,10 +47,13 @@ app.get('/api/stuff', (req, res, next) => {
   });
 
 app.post('/api/stuff', (req, res, next) => {
-    console.log(req.body);
-    res.status(201).json({
-        message: 'Objet créé'
-    })
+  delete req.body._id;
+  const thing = new Thing({
+    ...req.body
+  })
+  thing.save()
+  .then(() =>  res.status(201).json({message: 'Objet enregistré'}))
+  .catch(error => res.status(400).json({error}));   
 });
 
 // exporter pour pouvoir y avoir accès, notemment le server node (server.js)
